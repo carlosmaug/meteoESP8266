@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+	<head>
+		<title>Datos meteorológicos</title>
+		<meta charset="UTF-8">
+		<style>
+			div.caja {
+				background-color: #005ac0;
+				color: white;
+				margin: 2px auto;
+				padding: 20px;
+				width: 45%;
+				min-width: 170px;
+				border-radius: 15px;
+				border-width: 3px;
+				border-color: #bff8ff;
+				border-style: solid;
+				min-height: 103px;
+				display: inline-block;
+				text-align: left;
+			}
+			div.contenedor {
+				max-width: 93%; 
+				margin: 0 auto;
+				text-align: center;
+			}
+			p.titulo {
+				margin: 0 auto 8px auto;
+				font-size: 26px;
+			}
+			.tabla {
+				display: table;
+				width: 100%;
+				text-align: center;
+			}
+			.fila {
+				display: table-row;
+			}
+			.celda {
+				font-size: 20px;
+				display: table-cell;
+			}
+			img {
+				width: 100%;
+			}
+			.pagina {
+				background: linear-gradient(#003060, #09b8fc);
+				max-width: 90%;
+				min-height: 700px;
+				border-radius: 20px;
+				margin: auto;
+				padding: 2%;
+			}
+
+			body {
+				font-family: arial, sans-serif;
+			}
+
+			.button {
+			   position: relative;
+			   border: none;
+			   font-size: 28px;
+				color: #FFFFFF;
+				background: #006ad0;
+				padding: 20px;
+				width: 240px;
+				text-align: center;
+				-webkit-transition-duration: 0.4s; /* Safari */
+				transition-duration: 0.4s;
+				text-decoration: none;
+				overflow: hidden;
+				cursor: pointer;
+				border-width: 3px;
+				border-color: #bff8ff;
+				border-style: solid;
+				border-radius: 15px;
+			}
+
+			.button:after {
+				contenido: "";
+				background: #007ae0;
+				display: block;
+				position: absolute;
+				padding-top: 300%;
+				padding-left: 350%;
+				margin-left: -20px !important;
+				margin-top: -120%;
+				opacity: 0;
+				transition: all 0.8s
+			}
+
+			.button:active:after {
+				padding: 0;
+				margin: 0;
+				opacity: 1;
+				transition: 0s
+			}
+
+			.grafica {
+			    cursor: pointer;
+			    transition: 0.3s;
+			}
+			
+			.emergente {
+			    display: none; 
+			    position: fixed; 
+			    z-index: 1; 
+			    padding-top: 100px; 
+			    left: 0;
+			    top: 0;
+			    width: 100%; 
+			    height: 100%; 
+			    overflow: auto;
+			    background-color: rgb(0,0,0);
+			    background-color: rgba(0,0,0,0.9);
+			}
+			
+			.emergente-contenido {
+			    margin: auto;
+			    display: block;
+			    width: 95%;
+			}
+			
+			#pie {
+			    margin: auto;
+			    display: block;
+			    width: 80%;
+			    max-width: 700px;
+			    text-align: center;
+			    color: #ccc;
+			    padding: 10px 0;
+			    height: 150px;
+			}
+			
+			.emergente-contenido, #pie {
+			    -webkit-animation-name: zoom;
+			    -webkit-animation-duration: 0.6s;
+			    animation-name: zoom;
+			    animation-duration: 0.6s;
+			}
+			
+			@-webkit-keyframes zoom {
+			    from {-webkit-transform:scale(0)}
+			    to {-webkit-transform:scale(1)}
+			}
+			
+			@keyframes zoom {
+			    from {transform:scale(0)}
+			    to {transform:scale(1)}
+			}
+			
+			.cerrar {
+			    position: absolute;
+			    top: 15px;
+			    right: 35px;
+			    color: #f1f1f1;
+			    font-size: 40px;
+			    font-weight: bold;
+			    transition: 0.3s;
+			}
+			
+			.cerrar:hover,
+			.cerrar:focus {
+			    color: #bbb;
+			    text-decoration: none;
+			    cursor: pointer;
+			}
+			
+			/* 100% Image Width on Smaller Screens */
+			@media only screen and (max-width: 700px){
+			    .emergente-contenido {
+			        width: 100%;
+			    }
+			}
+		</style>
+	</head>
+	<body>
+		<div class="pagina">
+		<h1 style="text-align: center;color: aliceblue;">Datos meteorológicos</h1>
+		<div class="contenedor">
+			<div class="caja">
+				<p class="titulo">Temperatura exterior:</p>
+				<img class='grafica' id="Imagen01" src="graf_temperatura.svg" alt="Temperatura" onClick="modal(Imagen01);">
+			</div>
+			<div class="caja">
+				<p class="titulo">Humedad exterior:</p>
+				<img class='grafica' id="Imagen02" src="graf_humedad.svg" alt="humedad" onClick="modal(Imagen02);">
+			</div>
+			<div class="caja">
+				<p class="titulo">Presión atmosférica:</p>
+				<img class='grafica' id="Imagen03" src="graf_presion.svg" alt="humedad" onClick="modal(Imagen03);">
+			</div>
+			<div style="padding: 20px">
+				<button onclick="window.location.href='config.html'" class="button">Configuración</button>
+			</div>
+		</div>
+		</div>
+
+		<div id="miEmergente" class="emergente">
+			<!-- Boton cerrar -->
+			<span class="cerrar" onclick="document.getElementById('miEmergente').style.display='none'">&times;</span>
+			<!-- Contenido -->
+			<img class="emergente-contenido" id="img01">
+			<!-- Pie de contenido -->
+			<div id="pie"></div>
+		</div>
+
+		<script>
+			var emergente = document.getElementById('miEmergente');
+			var imgEmer = document.getElementById("img01");
+			var span = document.getElementsByClassName("cerrar")[0];
+			
+			span.onclick = function() { 
+			    miEmergente.style.display = "none";
+			}
+
+			function modal(IdImagen) {
+			     var texPie = document.getElementById("pie");
+			     emergente.style.display = "block";
+			     imgEmer.src = IdImagen.src;
+			     texPie.innerHTML = IdImagen.alt;
+			}
+		</script>
+	</body>
+</html>
