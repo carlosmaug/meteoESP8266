@@ -35,7 +35,7 @@ There are a few parameters that can be changed, they are placed at config.h file
 
 ## Web interface
 
-![index](https://raw.githubusercontent.com/carlosmaug/meteoESP8622/master/screenshots/index.png)
+![index](https://raw.githubusercontent.com/carlosmaug/meteoESP8266/master/screenshots/index.png)
 
 # Hardware
 
