@@ -1,4 +1,4 @@
-# ESP8266 meteorolical station
+# ESP8266 Weather station
 
 Meteorological station with humidity, temperature, barometer, CO2, light intensity and UV intensity. Time is sinchronized unsing an NTP server. It publish the sensors readings into an MQTT server.
 
