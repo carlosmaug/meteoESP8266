@@ -39,9 +39,9 @@
      inkscape:window-height="1056"
      id="namedview893"
      showgrid="false"
-     inkscape:zoom="4.0000002"
-     inkscape:cx="136.16937"
-     inkscape:cy="95.850484"
+     inkscape:zoom="8.0000004"
+     inkscape:cx="59.761419"
+     inkscape:cy="38.054269"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -1468,14 +1468,17 @@
   <g
      id="g537"
      transform="translate(0,-323)">
-    <use
-       xlink:href="#sprinkles"
-       width="8"
-       height="24"
-       x="101"
-       y="153"
-       id="use685"
-       transform="matrix(7.014744,0,0,7.014744,-707.23912,-793.59854)"
-       style="fill:#ffffff;fill-opacity:1;stroke:none" />
+    <g
+       id="g4507">
+      <use
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         transform="matrix(7.014744,0,0,7.014744,-707.23912,-793.59854)"
+         id="use685"
+         y="153"
+         x="101"
+         height="24"
+         width="8"
+         xlink:href="#sprinkles" />
+    </g>
   </g>
 </svg>
