@@ -8,6 +8,7 @@
    Ntp.h - Class to add ntp support
 */
 #include <NtpClientLib.h>
+#include "NtpConfig.h"
 
 class NtpClient {
 public:
@@ -53,8 +54,8 @@ void NtpClient::_init() {
         NtpClient::syncEventTriggered = true;
     });
 
-    NTP.setInterval(ntpint);
-    NTP.begin(ntpServer, 1, true);
+    NTP.setInterval(NTP_INTERVAL);
+    NTP.begin(NTP_SERVER, 1, true);
 }
 
 /**

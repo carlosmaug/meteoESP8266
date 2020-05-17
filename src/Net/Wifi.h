@@ -6,6 +6,7 @@
 /*
    Wifi.h - Class to connect to wifi
 */
+#include "WifiConfig.h"
 #include <ESP8266WiFi.h>
 #include <ESP_WiFiManager.h>
 
@@ -14,6 +15,7 @@ public:
     static bool wifiFirstConnected;
     WiFiEventHandler event;
   
+    Wifi();
     Wifi(char* apName, char* apPass);
     WiFiClient getClient();
 
@@ -23,8 +25,12 @@ public:
 };
 
 bool Wifi::wifiFirstConnected = false;
-    
-Wifi::Wifi(char* apName = NULL, char* apPass = NULL) {
+
+Wifi::Wifi() {
+   Wifi(AP_NAME, AP_PASS);
+}
+
+Wifi::Wifi(char* apName, char* apPass) {
    ESP_WiFiManager *wifiManager;   
 
    // Connect to WIFI
