@@ -50,15 +50,11 @@ void NtpClient::_init() {
 
     if (DEBUG) Serial.print("Waiting for NTP time sync: ");
     
-    while (now < 300 || i < 100) {
-        if (DEBUG) Serial.print(.);
-        delay(1000);
-
+    while (now < 300 && i < 20) {
+        if (DEBUG) Serial.print(".");
+	Serial.print(now);
+        delay(3000);
 	now = time(NULL);
-	gmtime_r(&now, &timeinfo);
-        Serial.print("Current time: ");
-        Serial.print(asctime(&timeinfo));
-
 	i++;
     }
 
