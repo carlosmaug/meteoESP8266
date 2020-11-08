@@ -1,5 +1,5 @@
 #ifndef DEBUG
-#define DEBUG false
+#define DEBUG false 
 #endif
 #ifndef WIFIC_H
 #define WIFIC_H
@@ -21,6 +21,10 @@ public:
 
     static void onWifiGotIp(WiFiEventStationModeGotIP ipInfo) {
         Wifi::wifiFirstConnected = true;
+
+	Serial.println("WiFi connected");
+	Serial.println("IP address: ");
+	Serial.println(WiFi.localIP());
     }
 };
 
@@ -36,16 +40,18 @@ Wifi::Wifi(char* apName, char* apPass) {
    // Connect to WIFI
    wifiManager = new ESP_WiFiManager();
 
+   if (DEBUG) wifiManager->setDebugOutput(true);
+ 
+   WiFi.onStationModeGotIP(Wifi::onWifiGotIp); 
+
    if (apName != NULL && apPass != NULL) 
        wifiManager->autoConnect(apName, apPass);
      
    wifiManager->setConfigPortalTimeout(30);
 
-   if (DEBUG) wifiManager->setDebugOutput(true);
- 
-   wifiManager->setDebugOutput(true);
-
-   event = WiFi.onStationModeGotIP(Wifi::onWifiGotIp); 
+   Serial.println();
+   Serial.print("Got IP: ");
+   Serial.println(WiFi.localIP());
 }
 
 #endif

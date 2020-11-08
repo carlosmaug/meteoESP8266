@@ -7,37 +7,33 @@
 /*
    Ntp.h - Class to add ntp support
 */
-#include <NtpClientLib.h>
+#include <Time.h>
 #include "NtpConfig.h"
 
 class NtpClient {
 public:
-    static NTPSyncEvent_t ntpLastEvent; // Last triggered event
-    static bool syncEventTriggered;     // True if a time even has been triggered
-
     NtpClient();
-    void ntpSyncEvent(); 
-    String status(); 
+    timeStatus_t status(); 
 
 private:
     void _init();
 };
-
-bool           NtpClient::syncEventTriggered = false;   
-NTPSyncEvent_t NtpClient::ntpLastEvent;
 
 /**
  * Constructor
  */
 
 NtpClient::NtpClient() {
+    setSyncInterval(NTP_INTERVAL);
+    configTime(TIMEZONE, DST_SEC, NTP_SERVER);
 #ifdef WIFIC_H
     int i = 0;
 
-    do {
+    while(Wifi::wifiFirstConnected || i > 10) {
         delay(500);
         i++;
-    } while(Wifi::wifiFirstConnected || i > 10);
+	Serial.println("Waiting WIFI to connect");
+    };
 
     Wifi::wifiFirstConnected = false;
     _init();
@@ -48,49 +44,40 @@ NtpClient::NtpClient() {
  * @brief Initiates NTP client
  */
 void NtpClient::_init() {
-    // NTP define events
-    NTP.onNTPSyncEvent([](NTPSyncEvent_t event) {
-       	NtpClient::ntpLastEvent       = event;
-        NtpClient::syncEventTriggered = true;
-    });
+    int    i   = 0;
+    time_t now = time(NULL);
+    struct tm timeinfo;
 
-    NTP.setInterval(NTP_INTERVAL);
-    NTP.begin(NTP_SERVER, 1, true);
-}
+    if (DEBUG) Serial.print("Waiting for NTP time sync: ");
+    
+    while (now < 300 || i < 100) {
+        if (DEBUG) Serial.print(.);
+        delay(1000);
 
-/**
- * @brief This function is called when an NTP syncronization event is trigered
- */
-void NtpClient::ntpSyncEvent() {
-    if (NtpClient::syncEventTriggered) {
-        if (NtpClient::ntpLastEvent < 0) {
-            Serial.printf ("Time Sync error: %d\n", NtpClient::ntpLastEvent);
+	now = time(NULL);
+	gmtime_r(&now, &timeinfo);
+        Serial.print("Current time: ");
+        Serial.print(asctime(&timeinfo));
 
-            if (NtpClient::ntpLastEvent == noResponse) {
-                Serial.println ("NTP server not reachable");
-            } else if (NtpClient::ntpLastEvent == invalidAddress) {
-                Serial.println ("Invalid NTP server address");
-	    } else if (NtpClient::ntpLastEvent == errorSending) {
-                Serial.println ("Error sending request");
-            } else if (NtpClient::ntpLastEvent == responseError) {
-                Serial.println ("NTP response error");
-            }
-	} else {
-            if (NtpClient::ntpLastEvent == timeSyncd && DEBUG) {
-                Serial.print ("Got NTP time: ");
-                Serial.println (NTP.getTimeDateString (NTP.getLastNTPSync()));
-            }
-        }
-
-        NtpClient::syncEventTriggered = false;
+	i++;
     }
-}
+
+    if (i >= 100) 
+	Serial.print("Error: NTP server not reachable.");
+
+    if (DEBUG) {
+	Serial.println("");
+        gmtime_r(&now, &timeinfo);
+    	Serial.print("Current time: ");
+    	Serial.print(asctime(&timeinfo));
+    }	
+ }
 
 /**
  * @brief Returns uptime information 
  */
-String NtpClient::status() {
-     return NTP.getTimeDateString() + "  Uptime: " + NTP.getUptimeString() + " Since " + NTP.getTimeDateString(NTP.getFirstSync()).c_str();
+timeStatus_t NtpClient::status() {
+    return  timeStatus();
 }
 
 #endif

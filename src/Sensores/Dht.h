@@ -4,15 +4,8 @@
    DHT22.h - Class to access DHT22 sensor
 */
 #include <DHT.h>
+#include "DhtConfig.h"
 #include "Sensores.h"
-
-#ifndef DHTPIN
-#define DHTPIN 2
-#endif
-
-#ifndef DHTTYPE
-#define DHTTYPE DHT22
-#endif
 
 // Initialize DHT sensor 
 // NOTE: For working with a faster than ATmega328p 16 MHz Arduino chip, like an ESP8266,

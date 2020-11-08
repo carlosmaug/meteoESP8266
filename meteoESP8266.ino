@@ -1,32 +1,29 @@
-
 #include <vector>
-#include "config_prod.h"
-#include "Net/Wifi.h"
-#include "Net/Ntp.h"
-//#include "Net/Mqtt.h"
-#include "Web/Web.h"
-#include "Web/Template.h"
-#include "Sensores/Dht22.h"
-#include "Sensores/Bmp180.h"
-#include "Sensores/Bh1750.h"
-#include "Sensores/Veml6070.h"
+#include "src/config.h"
+#include "src/Net/Wifi.h"
+#include "src/Net/Ntp.h"
+#include "src/Net/Rest.h"
+#include "src/Web/Web.h"
+#include "src/Web/DisplaySensorData.h"
+#include "src/Sensores/Dht.h"
+#include "src/Sensores/Bmp180.h"
+#include "src/Sensores/Bh1750.h"
+#include "src/Sensores/Veml6070.h"
+#include "src/Fs/Config.h"
 
-#include <ArduinoMqttClient.h>
+Wifi          *wifi;
+NtpClient     *ntpClient;
+EspRestClient *rest;
 
-Wifi      *wifi;
-NtpClient *ntpClient;
-
-WiFiClient wifiClient;
-MqttClient mqtt(wifiClient);
 char       espNameC[50];
-std::vector <sensor> sensors;
+//std::vector <sensor> sensors;
 
 //------------------------------------------
 //---- Sensors and other initialitations ---
 //------------------------------------------
 Wifi      *net;
-//Mqtt      *mqtt;
-Template  *www;
+//Config     *config;
+DisplaySensorData  *www;
 Dht22     *dht;
 Bmp180    *bmp;
 Bh1750    *bh;
@@ -40,22 +37,23 @@ void setup() {
     // Start Serial for debugging on the Serial Monitor
     Serial.begin(115200);
     
-    net       = new Wifi(apName, apPass);
+    net       = new Wifi();
     ntpClient = new NtpClient();
-    www       = new Template();
+    www       = new DisplaySensorData();
     bmp       = new Bmp180(sensors);
     dht       = new Dht22(sensors);
     bh        = new Bh1750(sensors);
     veml      = new Veml6070(sensors);
-    interval  = 0;
+    
+    rest        = new EspRestClient();
+    //config    = new Config();
+    
+    interval    = 0;
 
-    webSensors();
-   
-    //mqtt      = new Mqtt();
-    mqttInit();
 }
 
 void loop() {
+
   if (millis() > interval) {
     interval = millis() + 1000 * readInterval;
     
@@ -63,18 +61,17 @@ void loop() {
     dht->read(sensors);
     bh->read(sensors);
     veml->read(sensors);
-
+  
     // Update web data
     webSensors();
     
-    www->updateRootTemplate();
+    www->updateSensorData();
     
-    mqttPublishValues();
+    publishValues();
     
     Serial.println(ntpClient->status());
   }
 
-  ntpClient->ntpSyncEvent();
   www->read();
 }
 
@@ -94,92 +91,20 @@ void webSensors() {
    }    
 }
 
-
-//MQTT publish values
-void mqttPublishValues () {
-    mqttReconnect();
-    String topic;
+// Rest publish values
+void publishValues () {
+    String name;
 
     for (int i = 0; i < NUMSENSORS; i++) {
         if (www->datos[i].name != "") {
-            topic = www->datos[i].name;
+            name = www->datos[i].name;
+     
+            Serial.println(name);
             
-            topic.replace(" ", "");
-            Serial.println(topic);
-            mqttSendMessage(topic, www->datos[i].data);
+            if (isnan(www->datos[i].data)) www->datos[i].data = 0.00;
+            
+            Serial.println(www->datos[i].data);
+            rest->sendData(name, www->datos[i].data);
         }
-    }
-}
-
-//------------------------------- MQTT Stuff --------------------
-
-
-void mqttInit() {
-    mqttReconnect();
-    setEspName("Meteo_1");
-   //mqtt->setCallback(Mqtt::callback);
-
-    mqttBaseTopic = mqttBaseTopic + "/" + espName;
-}
-
-void setEspName(String espname) {
-    espName = espname;
-    espname.toCharArray(espNameC, espname.length() + 1);
-}
-
-
-void mqttReconnect() {
-    // Loop until we're reconnected
-    int i                   = 0;
-    const char mqttServer[] = "10.0.1.3";
-    int mqttPort            = 1883;
-
-    if (DEBUG) Serial.println("Checking MQTT connection... ");
-
-    while (!mqtt.connected() && i < 10) {
-        if (DEBUG) Serial.println("Attempting MQTT connection... " + espName);
-
-        // Attempt to connect
-        if (mqtt.connect(mqttServer, mqttPort)) {
-            if (DEBUG) Serial.println("Connected");
-        } else {
-           Serial.print("MQTT connection failed! Error code = ");
-           Serial.println(mqtt.connectError());
-
-           // Wait 5 seconds before retrying
-           delay(5000);
-        }
-
-        i++;
-    }
-}
-
-void mqttSendMessage(String topic, float dato) {
-    //MQTT Message
-    char mqttTopicC[256];
-    char playload[6];
-    bool error = false;
-
-    dtostrf(dato, 6, 2, playload);
-
-    topic = mqttBaseTopic + "/" + topic;
-
-    if (DEBUG) Serial.println("Publishing MQTT data... ");
-
-    if (0 == mqtt.beginMessage(topic))
-       error = true;
-
-    mqtt.print(playload);
-
-    if (0 == mqtt.endMessage())
-        error = true;
-
-    if (error) {
-        Serial.print("MQTT Error publishing message.");
-    } else if (DEBUG) {
-        Serial.print("Publish - Topic:");
-        Serial.print(mqttTopicC);
-        Serial.print(" -> message: ");
-        Serial.println(playload);
     }
 }

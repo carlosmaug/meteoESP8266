@@ -5,14 +5,14 @@
 #endif
 
 /*
-   Template.h - Class to create html page from collected data. 
+   DisplaySensorData.h - Class to create html page from collected data. 
 */
 #include "Web.h";
 
-class Template : public Web {
+class DisplaySensorData : public Web {
 public:
-    Template();
-    void updateRootTemplate();
+    DisplaySensorData();
+    void updateSensorData();
 
     struct data {
         String name;
@@ -28,41 +28,25 @@ public:
     */
     data   datos[NUMSENSORS];
 
-    String readTemplate();
+    String readSensorData();
 private:
     String _boxData();
 };
 
-Template::Template() {
+DisplaySensorData::DisplaySensorData() {
 }
 
 /**
  * Returns the thml to display on the root web page
  */
-String Template::readTemplate() {
+String DisplaySensorData::readSensorData() {
     return getRaiz();
 }
 
-void Template::updateRootTemplate() {
+void DisplaySensorData::updateSensorData() {
     String html;
 
-    String cabecera = "<!DOCTYPE html>\
-<html lang=es-ES>\
-<head>\
-<title>Datos meteorológicos</title>\
-<meta charset=UTF-8>\
-<style>div.caja{background-color:#005ac0;color:#fff;margin:2px auto;padding:20px;width:27%;min-width:170px;border-radius:15px;border-width:3px;border-color:#bff8ff;border-style:solid;min-height:103px;display:inline-block;text-align:left}div.img{float:left;height:112px}div.contenedor{max-width:93%;margin:0 auto;text-align:center}div.dato{min-height:112px}p.titulo{margin:0 auto 8px;font-size:26px}p.dato{font-size:30px;font-weight:700;margin:0 auto 8px}.tabla{display:table;width:100%;text-align:center}.fila{display:table-row}.celda{font-size:20px;display:table-cell}img{margin-right:25px}.pagina{background:linear-gradient(#003060,#09b8fc);max-width:90%;min-height:700px;border-radius:20px;margin:auto;padding:2%}body{font-family:arial,sans-serif}</style>\
-</head>\
-<body>\
-<div class=pagina>\
-<h1 style=text-align:center;color:aliceblue>Datos meteorológicos</h1>\
-<div class=contenedor>\n";
-
-    String pie = "</div>\
-</body>\
-</html>";
-
-    html = cabecera + _boxData() + pie;
+    html = this->_header + _boxData() + WEB_FOOTER;
 
     setRaiz(html);
 }
@@ -70,7 +54,7 @@ void Template::updateRootTemplate() {
 /**
  * Creates the a html div for each sesor
  */
-String Template::_boxData() {
+String DisplaySensorData::_boxData() {
     String html;
     char cData[10];
     char cMin[10];

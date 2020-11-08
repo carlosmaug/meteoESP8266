@@ -1,24 +1,14 @@
 #ifndef WEB_H
 #define WEB_H
 
-#ifndef UPDATEPATH
-#define UPDATEPATH "/firmware"
-#endif
-
-#ifndef UPDATEUSERNAME
-#define UPDATEUSERNAME "admin"
-#endif
-
-#ifndef UPDATEPASSWORD
-#define UPDATEPASSWORD "1Carlos."
-#endif
-
 /*
    Web.h - Class to create a web server
 */
+#include <string>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <ESP8266mDNS.h>
+#include "WebConfig.h"
 
 class Web {
 public:
@@ -28,6 +18,7 @@ public:
     void read();
     void reinicio();
     void setRaiz(String html);
+    void setTitle(String title);
     String getRaiz();
 
 private:
@@ -35,32 +26,42 @@ private:
     ESP8266HTTPUpdateServer *_httpUpdater;
 
     String _pagInicio;
+
+protected:
+    String _header;
 };
 
 Web::Web() {
-    _server      = new ESP8266WebServer(80);
-    _httpUpdater = new ESP8266HTTPUpdateServer();
+    this->setTitle(WEB_TITLE);
 
-    _httpUpdater->setup(_server, UPDATEPATH, UPDATEUSERNAME, UPDATEPASSWORD);
+    this->_server      = new ESP8266WebServer(80);
+    this->_httpUpdater = new ESP8266HTTPUpdateServer();
+
+    this->_httpUpdater->setup(_server, UPDATE_PATH, UPDATE_USERNAME, UPDATE_PASSWORD);
     
-    if (DEBUG) Serial.printf("HTTPUpdateServer ready! Open http://%s.local%s in your browser and login with username '%s' and password '%s'\n", espName.c_str(), UPDATEPATH, UPDATEUSERNAME, UPDATEPASSWORD);
+    if (DEBUG) Serial.printf("HTTPUpdateServer ready! Open http://%s.local%s in your browser and login with username '%s' and password '%s'\n", espName.c_str(), UPDATE_PATH, UPDATE_USERNAME, UPDATE_PASSWORD);
 
-    _server->on("/", [&](){_server->send(200, "text/html", _pagInicio);});
-    _server->on("/r", [&](){reinicio();});
-    _server->onNotFound([&](){noEncontrada();});
-    _server->begin();
+    this->_server->on("/", [&](){this->_server->send(200, "text/html", this->_pagInicio);});
+    this->_server->on("/reboot", [&](){this->reinicio();});
+    this->_server->onNotFound([&](){this->noEncontrada();});
+    this->_server->begin();
 }	
 
 void Web::read() {
-    _server->handleClient();
+    this->_server->handleClient();
 }
 
 void Web::setRaiz(String html) {
-    _pagInicio = html; 
+    this->_pagInicio = html; 
 }
+   
+void Web::setTitle(String title) {
+    this->_header = WEB_HEADER;
+    this->_header.replace("{{TITLE}}", title);	
+}	
 
 String Web::getRaiz() {
-    return _pagInicio;
+    return this->_pagInicio;
 }
 
 void Web::noEncontrada() {
