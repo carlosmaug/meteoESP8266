@@ -1,7 +1,9 @@
 #ifndef RestClient_h
 #define RestClient_h
 
-#define HTTP_DEBUG
+#ifndef DEBUG
+#define HTTP_DEBUG false
+#endif
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -62,11 +64,14 @@ public:
     // DELETE path and body and response
     int del(const char*, const char*, String*);
 
+    // Closes connection to server
+    void stop();
+
 private:
     WiFiClient *client;
     BearSSL::WiFiClientSecure *sslClient;
 
-    int readResponse(String*);
+    int readResponse(String*, WiFiClient *cli);
     void write(const char*);
 
     bool selfSigned = false;

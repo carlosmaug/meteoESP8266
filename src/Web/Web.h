@@ -86,16 +86,16 @@ void Web::reinicio() {
 <html lang=es-ES>\
 <head>\
 <title>Reboot</title>\
-<meta http-equiv=refresh content=20;url=/>\
+<meta http-equiv=refresh content=60;url=/>\
 <meta charset=UTF-8>\
 </head>\
 <body>\
-<div style=text-align:center><p><b>Rebooting, please wait.<b></p>\
+<div style=text-align:center><p><b>Rebooting, please wait 60 seconds.<b></p>\
 </body>\
 </html>";
 
     _server->send(200, "text/html", html);
-    delay(10000);
+    delay(5000);
     ESP.restart();
 }
 

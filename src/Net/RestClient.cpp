@@ -77,6 +77,7 @@ void RestClient::init() {
             this->sslClient->setInsecure();
         }
     } else {
+	HTTP_DEBUG_PRINT("HTTP insecure connection\n");
 	this->client = new WiFiClient();
     }
 }	
@@ -175,10 +176,10 @@ int RestClient::del(const char* path, const char* body, String* response) {
  * @param string data to send
  */
 void RestClient::write(const char* string){
-    if(ssl) {
+    if(this->ssl) {
         HTTP_DEBUG_PRINT("\nSSL Print: ");
         HTTP_DEBUG_PRINT(string);
-        sslClient->print(string);
+        this->sslClient->print(string);
     } else {
         HTTP_DEBUG_PRINT("\nHTTP Print: ");
         HTTP_DEBUG_PRINT(string);
@@ -194,24 +195,40 @@ void RestClient::write(const char* string){
  * @param body     Data to send to server within the request
  * @param response Server response to request
  *
- * @return bool 0 if failed 1 otherwise
+ * @return int 0 if failed 1 otherwise
  */
 int RestClient::request(const char* method, const char* path, const char* body, String* response) {
-    if (ssl) {
-	HTTP_DEBUG_PRINT("HTTPS connect\n");
-	sslClient->connect(host, port);
+    int statusCode = 0;
+    int i = 0;
+
+    if (this->ssl) {
+	HTTP_DEBUG_PRINT("HTTPS connecting to: ");
+	HTTP_DEBUG_PRINT(host);
+	HTTP_DEBUG_PRINT(" ");
+	HTTP_DEBUG_PRINT(port);
+	HTTP_DEBUG_PRINT("\n");
+
+	this->init();
+
+	do {
+	    this->sslClient->connect(host, port);
+            statusCode = this->sslClient->connected(); 
  
-       if (!sslClient->connected()) {
-            HTTP_DEBUG_PRINT("HTTPS Connection failed with code: ");
-            HTTP_DEBUG_PRINT(sslClient->getLastSSLError());
-            HTTP_DEBUG_PRINT("\n");
-            return 0;
-        }
+            if (0 == statusCode) {
+                HTTP_DEBUG_PRINT("HTTPS Connection failed with code: ");
+                HTTP_DEBUG_PRINT(sslClient->getLastSSLError());
+                HTTP_DEBUG_PRINT("\n");
+            }
+
+	    i++;
+	} while ( 0 == statusCode && i < 3);
     } else {
         HTTP_DEBUG_PRINT("HTTP: connect\n");
-	client->connect(host, port);
+	this->init();
 
-        if(!client->connected()) {
+	this->client->connect(host, port);
+
+        if (!this->client->connected()) {
             HTTP_DEBUG_PRINT("HTTP Connection failed\n");
             return 0;
         }
@@ -222,7 +239,7 @@ int RestClient::request(const char* method, const char* path, const char* body, 
 
     String request = String(method) + " " + String(path) + " HTTP/1.1\r\n";
 
-    for (int i = 0; i < num_headers; i++) {
+    for (int i = 0; i < this->num_headers; i++) {
         request += String(headers[i]) + "\r\n";
     }
 
@@ -246,19 +263,19 @@ int RestClient::request(const char* method, const char* path, const char* body, 
     write(request.c_str());
 
     HTTP_DEBUG_PRINT("\nEND REQUEST\n");
-    HTTP_DEBUG_PRINT("HTTP: call readResponse\n");
-    int statusCode = readResponse(response);
-    HTTP_DEBUG_PRINT("HTTP: return readResponse\n");
 
     // Cleanup
-    HTTP_DEBUG_PRINT("HTTP: stop client\n");
-    num_headers = 0;
+    this->num_headers = 0;
     
-    if (ssl) {
-        sslClient->stop();
+    HTTP_DEBUG_PRINT("HTTP: call readResponse\n");
+
+    if (this->ssl) {
+    	statusCode = this->readResponse(response, this->sslClient);
     } else {
-        client->stop();
+    	statusCode = this->readResponse(response, this->client);
     }
+
+    this->stop();
 
     delay(50);
     HTTP_DEBUG_PRINT("HTTP: client stopped\n");
@@ -271,9 +288,9 @@ int RestClient::request(const char* method, const char* path, const char* body, 
  *
  * @param response pointer where response is archived
  *
- * @return HTTP response code
+ * @return int HTTP response code
  */
-int RestClient::readResponse(String* response) {
+int RestClient::readResponse(String* response, WiFiClient *cli) {
     // An HTTP request ends with a blank line
     bool currentLineIsBlank = true;
     bool httpBody           = false;
@@ -285,21 +302,13 @@ int RestClient::readResponse(String* response) {
 
     HTTP_DEBUG_PRINT("HTTP: RESPONSE: \n");
 
-    if (ssl) {
-        BearSSL::WiFiClientSecure *client;
-	client = this->sslClient;
-    } else {	
-	WiFiClient *client;
-	client = this->client;
-    }
-
-    while (client->connected()) {
+    while (cli->connected()) {
         HTTP_DEBUG_PRINT(".");
 
-        if (client->available()) {
+        if (cli->available()) {
             HTTP_DEBUG_PRINT(",");
 
-            char c = client->read();
+            char c = cli->read();
             HTTP_DEBUG_PRINT(c);
 
             if (c == ' ' && !inStatus) 
@@ -334,4 +343,17 @@ int RestClient::readResponse(String* response) {
     }
 
     return code;
+}
+
+/**
+ * Closes connection to server
+ */
+void RestClient::stop() {
+    HTTP_DEBUG_PRINT("HTTP: Close connection\n");
+
+    if (this->ssl) {
+        this->sslClient->stop();
+    } else {
+        this->client->stop();
+    }
 }

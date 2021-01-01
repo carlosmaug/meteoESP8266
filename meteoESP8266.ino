@@ -1,22 +1,23 @@
-#include <vector>
 #include "src/config.h"
 #include "src/Net/Wifi.h"
 #include "src/Net/Ntp.h"
-#include "src/Net/Rest.h"
+#include "src/Domoticz/DomoticzRestClient.h"
 #include "src/Web/Web.h"
 #include "src/Web/DisplaySensorData.h"
 #include "src/Sensores/Dht.h"
 #include "src/Sensores/Bmp180.h"
 #include "src/Sensores/Bh1750.h"
 #include "src/Sensores/Veml6070.h"
-#include "src/Fs/Config.h"
+//#include "src/Fs/Config.h"
+
+#define HTTP_DEBUG
 
 Wifi          *wifi;
 NtpClient     *ntpClient;
-EspRestClient *rest;
+DomoticzRestClient *rest;
 
 char       espNameC[50];
-//std::vector <sensor> sensors;
+std::vector <sensor> sensors;
 
 //------------------------------------------
 //---- Sensors and other initialitations ---
@@ -45,11 +46,10 @@ void setup() {
     bh        = new Bh1750(sensors);
     veml      = new Veml6070(sensors);
     
-    rest        = new EspRestClient();
+    rest        = new DomoticzRestClient();
     //config    = new Config();
     
     interval    = 0;
-
 }
 
 void loop() {
@@ -61,7 +61,7 @@ void loop() {
     dht->read(sensors);
     bh->read(sensors);
     veml->read(sensors);
-  
+    
     // Update web data
     webSensors();
     
@@ -91,7 +91,9 @@ void webSensors() {
    }    
 }
 
-// Rest publish values
+/**
+ * Send sanson dato to Domoticz
+ */
 void publishValues () {
     String name;
 
@@ -105,6 +107,7 @@ void publishValues () {
             
             Serial.println(www->datos[i].data);
             rest->sendData(name, www->datos[i].data);
+            delay(10000);
         }
     }
 }

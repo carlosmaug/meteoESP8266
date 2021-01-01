@@ -12,7 +12,7 @@ public:
 	/*
 	 * Reads the sensor
 	 */
-	virtual void read(vector<sensor> &sensors) = 0;
+	virtual void read(std::vector <sensor> &sensors) = 0;
 
 	/*
 	 * Retur the number os sensors implemented by the sensor.
@@ -22,7 +22,7 @@ public:
 
 protected:
 	int            _numSensors;
-	vector<sensor> _sensors;
+	std::vector <sensor> _sensors;
 
 	/*
 	 * Sets sensor information into sensors struct
@@ -32,27 +32,38 @@ protected:
 	/*
 	 * Adds sensor info to the argument struct
 	 */
-	void _addSensorInfo(vector<sensor> &sensors);
+	void _addSensorInfo(std::vector <sensor> &sensors);
 
 
 	/*
 	 * Sets minimun and maximun values readed by a sensor
 	 */
-	void _setData(int idx, vector<sensor> &sensors);
+	void _setData(int idx, std::vector <sensor> &sensors);
 };
 
-void Sensor::_addSensorInfo(vector<sensor> &sensors) {
+/**
+ * Adds sensor information to the sensonrs array
+ */
+void Sensor::_addSensorInfo(std::vector <sensor> &sensors) {
 	for (int i = 0; i < this->_sensors.size(); i++) {
 		sensors.push_back(this->_sensors[i]);
 	}	
 }	
 
+/**
+ * Retuns the number of sensors we have
+ */
 int Sensor::getNumSensors() {
 	return this->_numSensors;
 }
 
-
-void Sensor::_setData(int pos, vector<sensor> &sensors) {
+/**
+ * Stores de actual values, maximun and minimum values of the sensonrs
+ *
+ * @param pos     int    Position of thesensonr into de sensors array
+ * @param sensors vector Sensors data 
+ */
+void Sensor::_setData(int pos, std::vector <sensor> &sensors) {
 	if (this->_sensors[pos].min > this->_sensors[pos].data || -1 == this->_sensors[pos].min) this->_sensors[pos].min = this->_sensors[pos].data;
 	if (this->_sensors[pos].max < this->_sensors[pos].data) this->_sensors[pos].max = this->_sensors[pos].data;
 

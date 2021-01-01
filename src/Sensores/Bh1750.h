@@ -3,18 +3,19 @@
 /*
  * Bmp180.h - Class to access Bmp180 sensor
  */
+#include <vector>
 #include <Wire.h>
 #include <BH1750.h>
 #include "Sensores.h"
 
 class Bh1750 : public Sensor {
 public:
-    Bh1750(vector<sensor> &sensors); 
+    Bh1750(std::vector <sensor> &sensors); 
 
     /*
      * Reads the sensor
      */
-    void read(vector<sensor> &sensors);
+    void read(std::vector <sensor> &sensors);
 
 private:
     BH1750 *_bh;
@@ -25,7 +26,7 @@ protected:
     void _setSensorInfo();
 };
 
-Bh1750::Bh1750(vector<sensor> &sensors) {
+Bh1750::Bh1750(std::vector <sensor> &sensors) {
     this->_bh = new BH1750();
 
     this->_bh->begin();
@@ -41,7 +42,7 @@ Bh1750::Bh1750(vector<sensor> &sensors) {
 /*
  * Reads the sensor
  */
-void Bh1750::read(vector<sensor> &sensors) {
+void Bh1750::read(std::vector <sensor> &sensors) {
     this->_sensors[0].data = this->_bh->readLightLevel();
     this->_sensors[1].data = this->_sensors[0].data/683.0; //Lux to Watts/m2
 

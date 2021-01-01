@@ -3,6 +3,7 @@
 /*
    Bmp180.h - Class to access Bmp180 sensor
 */
+#include <vector>
 #include <Wire.h>
 #include <Adafruit_VEML6070.h>
 #include "Sensores.h"
@@ -11,12 +12,12 @@ class Veml6070 : public Sensor {
 public:
     float index, watt, indexMin = -1, indexMax, wattMin = -1, wattMax;
 
-    Veml6070(vector<sensor> &sensors); 
+    Veml6070(std::vector <sensor> &sensors); 
 
     /*
      * Reads the sensor
      */
-    void read(vector<sensor> &sensors); 
+    void read(std::vector <sensor> &sensors); 
 
 private:
     Adafruit_VEML6070 *_veml;
@@ -28,7 +29,7 @@ protected:
 };
 
 
-Veml6070::Veml6070(vector<sensor> &sensors) {
+Veml6070::Veml6070(std::vector <sensor> &sensors) {
     this->_veml       = new Adafruit_VEML6070();
     
     this->_veml->begin(VEML6070_2_T);
@@ -42,7 +43,7 @@ Veml6070::Veml6070(vector<sensor> &sensors) {
 }
 
 
-void Veml6070::read(vector<sensor> &sensors) {
+void Veml6070::read(std::vector <sensor> &sensors) {
     int reading;
 
     reading     = _veml->readUV();

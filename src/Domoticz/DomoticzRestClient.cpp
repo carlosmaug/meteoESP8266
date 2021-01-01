@@ -1,41 +1,13 @@
-#ifndef DEBUG
-#define DEBUG false
-#endif
-
-#ifndef REST_H
-#define REST_H
-#define HTTP_DEBUG true
-
-/*
-   Rest.h - Class to add rest client support
-*/
-#include <RestClient.h>
-#include "RestConfig.h"
+/**
+ *  DomoticzRestClient.cpp - Class to publish data into Domoticz
+ */
+#include "DomoticzRestClient.h"
 #include <rBase64.h>
-
-class EspRestClient {
-public:
-    EspRestClient();
-    int get(const char *path);
-    int post(const char *path);
-    int sendData(String name, float data);
-    String restServer      = REST_SERVER;
-    int    restPort        = REST_PORT;
-    bool   restSSL         = REST_SSL;
-    String restFingerPrint = REST_FINGERPRINT;
-    String restAuth        = REST_AUTH;
-    String response;
-
-private:
-    RestClient *_client;
-    char *data;
-};
 
 /**
  * Constructor
  */
-
-EspRestClient::EspRestClient() {
+DomoticzRestClient::DomoticzRestClient() {
     if (DEBUG) {
         Serial.print("Connecting to: ");
         Serial.print(this->restServer.c_str());
@@ -46,26 +18,28 @@ EspRestClient::EspRestClient() {
     if ( 0 == this->restSSL ) {
         this->_client = new RestClient(this->restServer.c_str(), this->restPort);
     } else {
+        this->_client = new RestClient(this->restServer.c_str(), this->restPort);
+	this->_client->setSsl(true);
+
+#ifdef REST_ROOT_CERT
 	static const char trustRoot[] PROGMEM = REST_ROOT_CERT;
 
 	if (DEBUG) Serial.println("SSL cert:");
 	if (DEBUG) Serial.println(trustRoot);
 
-        this->_client = new RestClient(this->restServer.c_str(), this->restPort);
-	this->_client->setSsl(true);
 	this->_client->setTrustRoots(trustRoot);
-	this->_client->init();
+#endif	
     }
 }
 
-int EspRestClient::get(const char *path) {
+int DomoticzRestClient::get(const char *path) {
     if (this->restAuth.isEmpty())
         this->_client->setHeader("Authorization: Basic " + rbase64.encode(this->restAuth));
 
     int statusCode = this->_client->get(path, &this->response);
 
     if (DEBUG) {
-        Serial.print("EspRestClient::Get: ");
+        Serial.print("DomoticzRestClient::Get: ");
         Serial.print(path);
         Serial.print(" -> Status code from server: ");
         Serial.println(statusCode);
@@ -77,14 +51,14 @@ int EspRestClient::get(const char *path) {
 /**
  * Post data to rest server
  */
-int EspRestClient::post(const char *path) {
+int DomoticzRestClient::post(const char *path) {
     if (this->restAuth.isEmpty())
         this->_client->setHeader("Authorization: Basic " + rbase64.encode(this->restAuth));
 
     int statusCode = this->_client->post(path, "", &this->response);
 
     if (DEBUG) {
-        Serial.print("EspRestClient::Post: ");
+        Serial.print("DomoticzRestClient::Post: ");
         Serial.print(path);
         Serial.print(" -> Status code from server: ");
         Serial.println(statusCode);
@@ -95,7 +69,12 @@ int EspRestClient::post(const char *path) {
     return statusCode;
 }
 
-int EspRestClient::sendData(String name, float data) {
+/**
+ * Sends sensor data to Domoticz
+ *
+ * @param int 
+ */
+int DomoticzRestClient::sendData(String name, float data) {
     String path = REST_PATH;
     char *idx = "IDX";
 
@@ -134,5 +113,3 @@ int EspRestClient::sendData(String name, float data) {
 
     return code;
 }
-
-#endif

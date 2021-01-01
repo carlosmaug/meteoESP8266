@@ -1,0 +1,2 @@
+#define AP_NAME "apname"
+#define AP_PASS "appassword"

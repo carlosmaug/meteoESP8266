@@ -7,7 +7,6 @@
    Wifi.h - Class to connect to wifi
 */
 #include "WifiConfig.h"
-#include <ESP8266WiFi.h>
 #include <ESP_WiFiManager.h>
 
 class Wifi {

@@ -3,6 +3,7 @@
 /*
    DHT22.h - Class to access DHT22 sensor
 */
+#include <vector>
 #include <DHT.h>
 #include "DhtConfig.h"
 #include "Sensores.h"
@@ -18,12 +19,12 @@
 
 class Dht22 : public Sensor {
 public:
-    Dht22(vector<sensor> &sensors); 
+    Dht22(std::vector <sensor> &sensors); 
 
     /*
      * Reads the sensor
      */
-    void read(vector<sensor> &sensors);
+    void read(std::vector <sensor> &sensors);
 
 private:
     DHT *_dht;
@@ -34,7 +35,7 @@ protected:
     void _setSensorInfo();
 };
 
-Dht22::Dht22(vector<sensor> &sensors) {
+Dht22::Dht22(std::vector <sensor> &sensors) {
     _dht = new DHT(DHTPIN, DHTTYPE, 11);
 
     _dht->begin();
@@ -47,7 +48,7 @@ Dht22::Dht22(vector<sensor> &sensors) {
     this->_addSensorInfo(sensors);
 }
 
-void Dht22::read(vector<sensor> &sensors) {
+void Dht22::read(std::vector <sensor> &sensors) {
     int  count = 0;
     bool error = false;
 
@@ -55,6 +56,7 @@ void Dht22::read(vector<sensor> &sensors) {
         this->_sensors[0].data = this->_dht->readTemperature();
         this->_sensors[1].data = this->_dht->readHumidity();  
         count++;
+	delay(500);
     } while (count < 20 && (isnan(this->_sensors[0].data) || isnan(this->_sensors[1].data)));
 
     if (count >= 20) {

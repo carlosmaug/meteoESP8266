@@ -4,11 +4,11 @@
 #endif
 
 #ifndef UPDATE_USERNAME
-#define UPDATE_USERNAME "admin"
+#define UPDATE_USERNAME "user"
 #endif
 
 #ifndef UPDATE_PASSWORD
-#define UPDATE_PASSWORD "admin"
+#define UPDATE_PASSWORD "password"
 #endif
 
 #ifndef WEB_TITLE

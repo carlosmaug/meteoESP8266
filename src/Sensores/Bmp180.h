@@ -3,18 +3,19 @@
 /*
    Bmp180.h - Class to access Bmp180 sensor
 */
+#include <vector>
 #include <Wire.h>
 #include <SFE_BMP180.h>
 #include "Sensores.h"
 
 class Bmp180 : public Sensor {
 public:
-    Bmp180(vector<sensor> &sensors);
+    Bmp180(std::vector <sensor> &sensors);
 
     /*
      * Reads the sensor
      */
-    void read(vector<sensor> &sensors);
+    void read(std::vector <sensor> &sensors);
 
 private:
     SFE_BMP180 _bmp;
@@ -22,20 +23,13 @@ private:
     String _idPres;
 
 protected:
+    int  _start();
     void _setSensorInfo();
 };
 
 
-Bmp180::Bmp180(vector<sensor> &sensors) {
-    // Initialize the sensor (it is important to get calibration values stored on the device).
-    if ( _bmp.begin() ) {
-        Serial.println("BMP180 init success");
-    } else {
-        // Oops, something went wrong, this is usually a connection problem,
-        // see the comments at the top of this sketch for the proper connections.
-
-        Serial.println("BMP180 init fail");
-    }
+Bmp180::Bmp180(std::vector <sensor> &sensors) {
+    this->_start();
 
     this->_idTemp     = "Temp"+(String) random(9999);
     this->_idPres     = "Pres"+(String) random(9999);
@@ -45,7 +39,33 @@ Bmp180::Bmp180(vector<sensor> &sensors) {
     this->_addSensorInfo(sensors);
 }
 
-void Bmp180::read(vector<sensor> &sensors) {
+/**
+ * Initialize the sensor 
+ *
+ * It is important to get calibration values stored on the device.
+ *
+ * @return 0 if initialitation failed 1 if all was ok
+ */
+int Bmp180::_start() {
+    int i = 0;
+
+    while (i < 5 && 0 == _bmp.begin()) {
+        i++;
+	delay(500);
+    }
+
+    if (i < 5) {
+        Serial.println("BMP180 init success");
+    } else {
+        // Oops, something went wrong, this is usually a connection problem
+        Serial.println("BMP180 init fail");
+    }
+}
+
+/**
+ * Read sensor values
+ */
+void Bmp180::read(std::vector <sensor> &sensors) {
     int status;
     double temp, pres;
 
@@ -55,23 +75,30 @@ void Bmp180::read(vector<sensor> &sensors) {
     // (If temperature is stable, you can do one temperature measurement for a number of pressure measurements.)
     // Function returns 1 if successful, 0 if failure.
     status = _bmp.startTemperature();
-      
-    if (status != 0) {
+
+    if ( 0 == status ) {
+	status = this->_start();
+
+	if (0 != status)
+	    status = _bmp.startTemperature();
+    }
+
+    if (0 != status) {
         // Wait for the measurement to complete:
         delay(status);
         status = _bmp.getTemperature(temp);
         this->_sensors[0].data = (float) temp;
 
-        if (status != 0) {
+        if (0 != status) {
             status = _bmp.startPressure(3);
 
-            if (status != 0) {
+            if (0 != status) {
                 // Wait for the measurement to complete:
                 delay(status);
                 status = _bmp.getPressure(pres, temp);
         	this->_sensors[1].data = (float) pres;
 
-                if (status == 0) {
+                if (0 == status) {
                     Serial.println("BMP: error retrieving pressure measurement\n");
                 }
             } else {
@@ -88,6 +115,9 @@ void Bmp180::read(vector<sensor> &sensors) {
     this->_setData(1, sensors);
 }
 
+/**
+ * Adds sensor info to sensors array
+ */
 void Bmp180::_setSensorInfo() {
     sensor sensor;
 

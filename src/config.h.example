@@ -7,7 +7,7 @@
 const long readInterval = 80;   // 60s
 
 //MQTT
-#define MQTT_SERVER "10.0.1.3"
+#define MQTT_SERVER "10.10.10.10"
 #define MQTT_PORT 1883
 
 //MQTT
@@ -16,4 +16,4 @@ int mqttPort = MQTT_PORT;
 
 //Other MQTT things
 String espName = ESPNAME;
-String mqttBaseTopic = String("casa");
+String mqttBaseTopic = String("meteo");

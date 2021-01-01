@@ -1,9 +1,9 @@
 #ifndef REST_SERVER
-#define REST_SERVER "casa.martinugalde.es"
+#define REST_SERVER "my.rest.server"
 #endif
 
-#ifndef REST_FINGERPRINT
-#define REST_FINGERPRINT "E1:47:33:C9:87:CA:16:A3:AC:72:21:9E:60:92:5B:EB:8B:D0:76:A6"
+#ifndef REST_CERT_FINGERPRINT
+#define REST_CERT_FINGERPRINT "E1:47:33:C9:87:CA:16:A3:AC:72:21:9E:60:92:5B:EB:8B:D0:76:A6"
 #endif
 
 #define REST_ROOT_CERT "-----BEGIN CERTIFICATE-----\n\
@@ -35,11 +35,11 @@ KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n\
 -----END CERTIFICATE-----\n"
 
 #ifndef REST_SSL
-#define REST_SSL 1
+#define REST_SSL 0
 #endif
 
 #ifndef REST_PORT 
-#define REST_PORT 8443 
+#define REST_PORT 80 
 #endif
 
 // "user:password"
@@ -48,33 +48,33 @@ KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n\
 #endif
 
 #ifndef REST_PATH
-#define REST_PATH "/json.htm?type=command&param=udevice&nvalue=0&idx=IDX&svalue=VAL"
+#define REST_PATH "/json.htm?type=command&param=udevice&idx=IDX&nvalue=VAL&svalue=VAL"
 #endif
 
 #ifndef REST_TEMP_IDX
-#define REST_TEMP_IDX "640"
+#define REST_TEMP_IDX "60"
 #endif
 
 #ifndef REST_HUM_IDX
-#define REST_HUM_IDX "641"
+#define REST_HUM_IDX "61"
 #endif
 
 #ifndef REST_PRES_IDX
-#define REST_PRES_IDX "642"
+#define REST_PRES_IDX "62"
 #endif
 
 #ifndef REST_LUX_IDX
-#define REST_LUX_IDX "643"
+#define REST_LUX_IDX "63"
 #endif
 
 #ifndef REST_SOLRAD_IDX
-#define REST_SOLRAD_IDX "644"
+#define REST_SOLRAD_IDX "64"
 #endif
 
 #ifndef REST_UVRAD_IDX
-#define REST_UVRAD_IDX "645"
+#define REST_UVRAD_IDX "65"
 #endif
 
 #ifndef REST_UVIND_IDX
-#define REST_UVIND_IDX "646"
+#define REST_UVIND_IDX "66"
 #endif
