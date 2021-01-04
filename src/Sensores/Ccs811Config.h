@@ -1,0 +1,2 @@
+#define CCS811_ADDR CCS811_SLAVEADDR_1
+#define NWAKE -1
