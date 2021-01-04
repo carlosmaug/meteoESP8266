@@ -38,7 +38,7 @@ Ccs811::Ccs811(std::vector <sensor> &sensors) {
 
     this->_ccs->set_i2cdelay(50);
 
-    while (count < 20 && !this->_css->begin()) {
+    while (count < 20 && !this->_ccs->begin()) {
         count++;
 	delay(500);
     }
@@ -49,7 +49,7 @@ Ccs811::Ccs811(std::vector <sensor> &sensors) {
     } else {
         count = 0;
 
-        while (count < 20 && !this->_css->start(CCS811_MODE_1SEC) {
+        while (count < 20 && !this->_ccs->start(CCS811_MODE_1SEC)) {
             count++;
             delay(500);
         }
@@ -70,24 +70,24 @@ Ccs811::Ccs811(std::vector <sensor> &sensors) {
 
 
 void Ccs811::read(std::vector <sensor> &sensors) {
-    uint16_t co2, voc, code;
+    uint16_t co2, voc, code, raw;
     bool error = false;
     
-    this->_css->read(&co2, &voc, &code);
+    this->_ccs->read(&co2, &voc, &code, &raw);
 
     if ( code == CCS811_ERRSTAT_OK ) { 
         this->_sensors[0].data = co2; // CO2 ppm
         this->_sensors[1].data = voc; // VOC ppb
-    } else if ( errstat == CCS811_ERRSTAT_OK_NODATA ) {
+    } else if ( code == CCS811_ERRSTAT_OK_NODATA ) {
 	error = true;
-    } else if ( errstat & CCS811_ERRSTAT_I2CFAIL ) { 
+    } else if ( code & CCS811_ERRSTAT_I2CFAIL ) { 
         Serial.println("CCS811: I2C error while reading data.");
 	error = true;
     } else {
         Serial.print("CCS811: ERROR: "); 
-	Serial.print(errstat, HEX); 
+	Serial.print(code, HEX); 
         Serial.print(" -> "); 
-	Serial.println(this->_ccs->errstat_str(errstat));
+	Serial.println(this->_ccs->errstat_str(code));
         error = true;
     }
 
@@ -101,16 +101,16 @@ void Ccs811::read(std::vector <sensor> &sensors) {
 }
 
 
-void Veml6070::_setSensorInfo() {
+void Ccs811::_setSensorInfo() {
     sensor sensor;
 
-    sensor.id   = this->_idIdx;
+    sensor.id   = this->_idCo2;
     sensor.name = "CO2";
     sensor.unit = "ppm";
     sensor.img  = "co2.svg";
     this->_sensors.push_back(sensor);
 
-    sensor.id   = this->_idRad;
+    sensor.id   = this->_idVoc;
     sensor.name = "VOC";
     sensor.unit = "ppb";
     sensor.img  = "voc.svg";
