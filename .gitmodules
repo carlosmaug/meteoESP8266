@@ -1,0 +1,3 @@
+[submodule "src/vendor/CCS811"]
+	path = src/vendor/CCS811
+	url = https://github.com/maarten-pennings/CCS811.git
