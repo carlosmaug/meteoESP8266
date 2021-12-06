@@ -7,7 +7,7 @@
 /*
    Ntp.h - Class to add ntp support
 */
-#include <Time.h>
+#include <TimeLib.h>
 #include "NtpConfig.h"
 
 class NtpClient {
