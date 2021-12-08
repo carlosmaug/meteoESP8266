@@ -56,9 +56,11 @@ int Bmp180::_start() {
 
     if (i < 5) {
         Serial.println("BMP180 init success");
+	return 1;
     } else {
         // Oops, something went wrong, this is usually a connection problem
         Serial.println("BMP180 init fail");
+	return 0;
     }
 }
 
