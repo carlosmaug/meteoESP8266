@@ -37,6 +37,7 @@ unsigned long interval;
 void setup() {
     // Start Serial for debugging on the Serial Monitor
     Serial.begin(115200);
+    while (!Serial);
     
     net       = new Wifi();
     ntpClient = new NtpClient();
@@ -107,7 +108,7 @@ void publishValues () {
             
             Serial.println(www->datos[i].data);
             rest->sendData(name, www->datos[i].data);
-            delay(10000);
+            delay(1000);
         }
     }
 }

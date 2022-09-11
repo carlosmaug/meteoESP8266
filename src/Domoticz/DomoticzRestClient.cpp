@@ -77,6 +77,7 @@ int DomoticzRestClient::post(const char *path) {
 int DomoticzRestClient::sendData(String name, float data) {
     String path = REST_PATH;
     char *idx = "IDX";
+    bool uv = false;
 
     if (DEBUG) Serial.println("Name " + name);
 
@@ -86,22 +87,26 @@ int DomoticzRestClient::sendData(String name, float data) {
         path.replace(idx, REST_HUM_IDX);
     } else if (-1 != name.indexOf("Presion")) {
         path.replace(idx, REST_PRES_IDX);
-    } else if (-1 != name.indexOf("Lux")) {
+    } else if (-1 != name.indexOf("Luz")) {
         path.replace(idx, REST_LUX_IDX);
-    } else if (-1 != name.indexOf("Irradiacia")) {
+    } else if (-1 != name.indexOf("Irradiancia Solar")) {
         path.replace(idx, REST_SOLRAD_IDX);
-    } else if (-1 != name.indexOf("Indice")) {
+    } else if (-1 != name.indexOf("Indice UV")) {
         path.replace(idx, REST_UVIND_IDX);
-    } else if (-1 != name.indexOf("Rediacion")) {
+	uv = true;
+    } else if (-1 != name.indexOf("Radiacion UV")) {
         path.replace(idx, REST_UVRAD_IDX);
     } else {
 	return 0;
     }
 
     char charData[8];
+
     dtostrf(data, 6, 2, charData);
     String stringData = String(charData);
     stringData.trim();
+
+    if (uv) stringData = stringData + ";0"; 
     path.replace("VAL", stringData);
 
     if (DEBUG) Serial.println("Sending " + path);

@@ -7,7 +7,7 @@
    Wifi.h - Class to connect to wifi
 */
 #include "WifiConfig.h"
-#include <ESP_WiFiManager.h>
+#include <WiFiManager.h>
 
 class Wifi {
 public:
@@ -34,10 +34,10 @@ Wifi::Wifi() {
 }
 
 Wifi::Wifi(char* apName, char* apPass) {
-   ESP_WiFiManager *wifiManager;   
+   WiFiManager *wifiManager;   
 
    // Connect to WIFI
-   wifiManager = new ESP_WiFiManager();
+   wifiManager = new WiFiManager();
 
    if (DEBUG) wifiManager->setDebugOutput(true);
  
